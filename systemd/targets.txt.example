@@ -1,0 +1,28 @@
+# reconFTW Hidden Services Targets List
+# One .onion domain per line
+# Lines starting with # are comments and will be ignored
+# Empty lines are also ignored
+
+# Example v3 onion addresses (these are not real)
+# Replace with your actual targets
+
+# DuckDuckGo (example - this is a real one)
+3g2upl4pq6kufc4m5kfhwxmfpqokgp4s7hkeioqgaonion4bct.onion
+
+# Add your hidden service targets below:
+# example1.onion
+# example2.onion
+# example3.onion
+
+# You can organize targets with comments:
+# === Marketplace Sites ===
+# marketplace1.onion
+# marketplace2.onion
+
+# === Forum Sites ===
+# forum1.onion
+# forum2.onion
+
+# === Other Services ===
+# service1.onion
+# service2.onion

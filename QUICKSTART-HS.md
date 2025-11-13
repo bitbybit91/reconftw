@@ -174,6 +174,31 @@ RATE_LIMIT_DELAY=5
 
 ✅ **No DNS Leaks**: All traffic goes through Tor
 
+## Automated Scanning (Systemd)
+
+Set up automatic scanning every 2 hours:
+
+```bash
+# 1. Install systemd service
+sudo ./scripts/install-systemd-service.sh
+
+# 2. Add targets to scan
+sudo nano /etc/reconftw/targets.txt
+# Add one .onion per line
+
+# 3. Enable automatic scanning
+sudo systemctl enable reconftw-hs-multi.timer
+sudo systemctl start reconftw-hs-multi.timer
+
+# 4. Check status
+sudo systemctl status reconftw-hs-multi.timer
+
+# 5. View logs
+sudo journalctl -u reconftw-hs-multi -f
+```
+
+See [SYSTEMD-SERVICE.md](SYSTEMD-SERVICE.md) for full documentation.
+
 ## Example Workflow
 
 ```bash

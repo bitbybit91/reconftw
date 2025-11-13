@@ -1,0 +1,42 @@
+[Unit]
+Description=reconFTW Hidden Services Multi-Target Scanner
+Documentation=https://github.com/bitbybit91/reconftw
+After=network-online.target tor.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=reconftw
+Group=reconftw
+WorkingDirectory=/opt/reconftw
+
+# Environment variables
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="HOME=/home/reconftw"
+
+# Execute the multi-target scanner script
+ExecStart=/opt/reconftw/scripts/run-multi-scan.sh
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=reconftw-hs-multi
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/reconftw/reports
+
+# Resource limits
+MemoryMax=8G
+CPUQuota=300%
+TimeoutStartSec=12h
+
+# Restart policy
+Restart=on-failure
+RestartSec=10m
+
+[Install]
+WantedBy=multi-user.target

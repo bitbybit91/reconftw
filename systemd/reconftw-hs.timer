@@ -1,0 +1,20 @@
+[Unit]
+Description=reconFTW Hidden Services Reconnaissance Timer (Every 2 Hours)
+Documentation=https://github.com/bitbybit91/reconftw
+Requires=reconftw-hs.service
+
+[Timer]
+# Run every 2 hours
+OnCalendar=*-*-* */2:00:00
+
+# Run 5 minutes after boot if we missed a scheduled time
+OnBootSec=5min
+
+# If the service is already running, don't start another instance
+Persistent=true
+
+# Randomize start time by up to 5 minutes to avoid resource spikes
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

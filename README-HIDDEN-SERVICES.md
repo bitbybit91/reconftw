@@ -153,6 +153,24 @@ Enable real-time notifications for credentials and vulnerabilities:
 
 See [TELEGRAM-SETUP.md](TELEGRAM-SETUP.md) for detailed instructions.
 
+### Automated Scanning with Systemd
+
+Set up automatic scanning every 2 hours:
+
+```bash
+# Install systemd service
+sudo ./scripts/install-systemd-service.sh
+
+# Configure target(s)
+sudo nano /etc/reconftw/targets.txt
+
+# Enable and start
+sudo systemctl enable reconftw-hs-multi.timer
+sudo systemctl start reconftw-hs-multi.timer
+```
+
+See [SYSTEMD-SERVICE.md](SYSTEMD-SERVICE.md) for complete documentation.
+
 ## Usage
 
 ### Basic Scan

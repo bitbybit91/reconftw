@@ -1,0 +1,10 @@
+# reconFTW Hidden Services Targets Configuration
+# This file is used by the systemd service to define the target .onion domain
+# Copy this file to /etc/reconftw/targets.conf and edit as needed
+
+# Single target mode (for reconftw-hs.service)
+TARGET=example.onion
+
+# You can also set additional environment variables here
+# TELEGRAM_ENABLED=true
+# SCAN_MODE=deep

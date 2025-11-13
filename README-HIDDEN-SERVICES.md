@@ -26,6 +26,7 @@ The tool has been enhanced to work seamlessly with Tor proxy, handle system hard
 - ✅ **Nuclei Scanning** - Vulnerability templates through Tor proxy
 - ✅ **SQL Injection Testing** - SQLMap integration with Tor
 - ✅ **Technology Detection** - Identify web frameworks and technologies
+- ✅ **Telegram Notifications** - Real-time alerts for credentials and vulnerabilities
 
 ### Removed/Disabled Features
 - ❌ DNS enumeration (not applicable to .onion)
@@ -127,7 +128,30 @@ SCAN4ALL_POC=true
 BRUTE_ENABLED=true
 BRUTE_THREADS=10
 BRUTE_DELAY=1
+
+# Output directory (stores reports inside project)
+dir_output="${SCRIPTPATH}/reports"
+
+# Telegram notifications (optional)
+TELEGRAM_ENABLED=false
+TELEGRAM_BOT_TOKEN=""  # Get from @BotFather
+TELEGRAM_CHAT_ID=""    # Your Telegram chat ID
 ```
+
+### Telegram Notifications
+
+Enable real-time notifications for credentials and vulnerabilities:
+
+1. Create a Telegram bot via [@BotFather](https://t.me/botfather)
+2. Get your Chat ID via [@userinfobot](https://t.me/userinfobot)
+3. Update `reconftw-hs.cfg`:
+   ```bash
+   TELEGRAM_ENABLED=true
+   TELEGRAM_BOT_TOKEN="your_bot_token"
+   TELEGRAM_CHAT_ID="your_chat_id"
+   ```
+
+See [TELEGRAM-SETUP.md](TELEGRAM-SETUP.md) for detailed instructions.
 
 ## Usage
 
@@ -195,28 +219,34 @@ The tool follows this reconnaissance workflow:
 
 ## Output Structure
 
+Results are stored in the `reports/` directory inside the project:
+
 ```
-reconftw-output/
-└── example.onion/
-    ├── reconftw.log              # Main log file
-    ├── webprobe.json             # Web probing results
-    ├── tech_detection.txt        # Technology fingerprinting
-    ├── screenshots/              # Website screenshots
-    ├── fuzz/                     # Fuzzing results
-    │   └── directories.json
-    ├── nuclei/                   # Vulnerability scan results
-    │   └── results.txt
-    ├── scan4all/                 # scan4all integration results
-    │   ├── web/
-    │   ├── vulns/
-    │   └── deep/
-    ├── brute/                    # Brute force results
-    │   ├── web_login.txt
-    │   ├── http_basic.txt
-    │   └── ftp.txt
-    └── sqli/                     # SQL injection results
-        └── sqlmap_output/
+reconftw/
+└── reports/
+    └── example.onion/
+        ├── reconftw.log              # Main log file
+        ├── credentials_found.txt     # All credentials discovered
+        ├── webprobe.json             # Web probing results
+        ├── tech_detection.txt        # Technology fingerprinting
+        ├── screenshots/              # Website screenshots
+        ├── fuzz/                     # Fuzzing results
+        │   └── directories.json
+        ├── nuclei/                   # Vulnerability scan results
+        │   └── results.txt
+        ├── scan4all/                 # scan4all integration results
+        │   ├── web/
+        │   ├── vulns/
+        │   └── deep/
+        ├── brute/                    # Brute force results
+        │   ├── web_login.txt
+        │   ├── http_basic.txt
+        │   └── ftp.txt
+        └── sqli/                     # SQL injection results
+            └── sqlmap_output/
 ```
+
+**New**: All credentials found (username/password combinations) are automatically saved to `credentials_found.txt` and optionally sent to Telegram in real-time.
 
 ## Security Considerations
 

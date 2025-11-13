@@ -44,6 +44,11 @@ if [[ -f "${SCRIPTPATH}/lib/brute-integration.sh" ]]; then
     source "${SCRIPTPATH}/lib/brute-integration.sh"
 fi
 
+# Load Telegram notification
+if [[ -f "${SCRIPTPATH}/lib/telegram-notify.sh" ]]; then
+    source "${SCRIPTPATH}/lib/telegram-notify.sh"
+fi
+
 # Display banner
 function hs_banner() {
     printf "\n%b" "$bgreen"
@@ -153,18 +158,21 @@ function main() {
         test_onion_connection "$target"
     fi
     
-    # Create output directory
-    local output_dir="${dir_output:-$HOME/reconftw-output}/${target}"
+    # Create output directory (inside project by default)
+    local output_dir="${dir_output:-${SCRIPTPATH}/reports}/${target}"
     mkdir -p "$output_dir"
-    cd "$output_dir" || exit 1
     
     # Set up logging
     export LOGFILE="${output_dir}/reconftw.log"
+    export output_dir="$output_dir"
     touch "$LOGFILE"
     
     # Create .called_fn directory for tracking
     export called_fn_dir="${output_dir}/.called_fn"
     mkdir -p "$called_fn_dir"
+    
+    # Record start time for duration calculation
+    local start_time=$(date +%s)
     
     printf "\n%b#######################################################################%b\n" "$bgreen" "$reset"
     printf "%b[%s] Starting Hidden Services Reconnaissance%b\n" "$bblue" "$(date +'%Y-%m-%d %H:%M:%S')" "$reset"
@@ -172,8 +180,16 @@ function main() {
     printf "%b[*] Output: %s%b\n" "$bblue" "$output_dir" "$reset"
     printf "%b#######################################################################%b\n\n" "$bgreen" "$reset"
     
+    # Send Telegram notification - scan start
+    if [[ "$TELEGRAM_ENABLED" == true ]] && [[ "$TELEGRAM_NOTIFY_START" == true ]]; then
+        notify_scan_start "$target"
+    fi
+    
     # Export domain for use in functions
     export domain="$target"
+    
+    # Change to output directory
+    cd "$output_dir" || exit 1
     
     # Run reconnaissance modules
     
@@ -266,6 +282,11 @@ function main() {
             printf "%b[✓] Nuclei scan complete%b\n" "$bgreen" "$reset"
             printf "%b[*] Vulnerabilities found:%b\n" "$bgreen" "$reset"
             cat nuclei/results.txt | head -20
+            
+            # Parse and report critical/high findings to Telegram
+            if [[ "$TELEGRAM_ENABLED" == true ]] && [[ "$TELEGRAM_NOTIFY_VULNS" == true ]]; then
+                parse_nuclei_results "$target"
+            fi
         fi
     fi
     
@@ -277,6 +298,11 @@ function main() {
     # 7. Brute force attacks
     if [[ "$BRUTE_ENABLED" == true ]] && [[ "$SPRAY" == true ]]; then
         brute_full_attack "$target" "$output_dir"
+        
+        # Parse and report credentials found to Telegram
+        if [[ "$TELEGRAM_ENABLED" == true ]] && [[ "$TELEGRAM_NOTIFY_CREDENTIALS" == true ]]; then
+            parse_brute_results "$target"
+        fi
     fi
     
     # 8. SQLMap testing
@@ -299,6 +325,11 @@ function main() {
                     2>>"$LOGFILE" || true
             fi
         done
+        
+        # Parse and report SQL injection findings to Telegram
+        if [[ "$TELEGRAM_ENABLED" == true ]] && [[ "$TELEGRAM_NOTIFY_CREDENTIALS" == true ]]; then
+            parse_sqli_results "$target"
+        fi
     fi
     
     # Rotate Tor circuit periodically
@@ -322,6 +353,21 @@ function main() {
     
     printf "\n%b[✓] All scans completed successfully!%b\n" "$bgreen" "$reset"
     printf "%b#######################################################################%b\n\n" "$bgreen" "$reset"
+    
+    # Calculate duration
+    local end_time=$(date +%s)
+    local duration=$((end_time - start_time))
+    local duration_formatted=$(printf '%02d:%02d:%02d' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
+    
+    # Send Telegram notifications - scan complete
+    if [[ "$TELEGRAM_ENABLED" == true ]]; then
+        if [[ "$TELEGRAM_NOTIFY_COMPLETE" == true ]]; then
+            notify_scan_complete "$target" "$duration_formatted"
+        fi
+        
+        # Send findings summary
+        send_findings_summary "$target"
+    fi
     
     # Cleanup
     if [[ "$TOR_ENABLED" == true ]]; then

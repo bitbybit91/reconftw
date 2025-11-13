@@ -63,6 +63,11 @@ source "$REPO_DIR/lib/brute-integration.sh" 2>/dev/null || {
     exit 1
 }
 
+source "$REPO_DIR/lib/telegram-notify.sh" 2>/dev/null || {
+    echo -e "${RED}Failed to load telegram-notify.sh${NC}"
+    exit 1
+}
+
 echo "Configuration and Libraries Tests:"
 echo "------------------------------------------"
 
@@ -107,6 +112,16 @@ test_result "install_brute function exists" $?
 
 type brute_web_login &>/dev/null
 test_result "brute_web_login function exists" $?
+
+# Test 7: Telegram notification functions
+type send_telegram_message &>/dev/null
+test_result "send_telegram_message function exists" $?
+
+type report_credentials_telegram &>/dev/null
+test_result "report_credentials_telegram function exists" $?
+
+type parse_brute_results &>/dev/null
+test_result "parse_brute_results function exists" $?
 
 echo ""
 echo "Onion Domain Validation Tests:"
@@ -191,6 +206,9 @@ test_result "lib/scan4all-integration.sh is executable" $?
 [[ -x "$REPO_DIR/lib/brute-integration.sh" ]]
 test_result "lib/brute-integration.sh is executable" $?
 
+[[ -x "$REPO_DIR/lib/telegram-notify.sh" ]]
+test_result "lib/telegram-notify.sh is executable" $?
+
 echo ""
 echo "Documentation Tests:"
 echo "------------------------------------------"
@@ -202,6 +220,10 @@ test_result "README-HIDDEN-SERVICES.md exists" $?
 # Test 20: README has content
 [[ -s "$REPO_DIR/README-HIDDEN-SERVICES.md" ]]
 test_result "README-HIDDEN-SERVICES.md has content" $?
+
+# Test 21: Telegram setup guide exists
+[[ -f "$REPO_DIR/TELEGRAM-SETUP.md" ]]
+test_result "TELEGRAM-SETUP.md exists" $?
 
 echo ""
 echo "Configuration Validation Tests:"
@@ -229,6 +251,14 @@ test_result "Subdomain enumeration is disabled" $?
 
 [[ "$GOOGLE_DORKS" == false ]]
 test_result "Google dorks are disabled" $?
+
+# Test 26: Output directory is configured to project directory
+[[ "$dir_output" == *"reports"* ]] || [[ "$dir_output" == *"SCRIPTPATH"* ]]
+test_result "Output directory configured to project" $?
+
+# Test 27: Telegram settings exist in config
+[[ -n "${TELEGRAM_ENABLED+x}" ]]
+test_result "Telegram settings present in config" $?
 
 echo ""
 echo "=========================================="

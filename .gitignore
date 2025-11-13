@@ -1,6 +1,7 @@
 #Ignoring output directories
 Recon/
 output/
+reports/
 .obsidian/
 test/
 .trunk/
@@ -11,3 +12,6 @@ test/
 *.zip
 .DS_Store
 reconftw.cfg-personal
+
+#Ignoring sensitive configuration with Telegram tokens
+reconftw-hs.cfg-personal

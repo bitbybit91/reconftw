@@ -1,0 +1,44 @@
+[Unit]
+Description=reconFTW Hidden Services Reconnaissance Scanner
+Documentation=https://github.com/bitbybit91/reconftw
+After=network-online.target tor.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=reconftw
+Group=reconftw
+WorkingDirectory=/opt/reconftw
+
+# Environment variables
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="HOME=/home/reconftw"
+
+# Load targets from configuration file
+EnvironmentFile=/etc/reconftw/targets.conf
+
+# Execute the scanner with targets
+ExecStart=/opt/reconftw/reconftw-hs.sh -d ${TARGET}
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=reconftw-hs
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/reconftw/reports
+
+# Resource limits
+MemoryMax=4G
+CPUQuota=200%
+
+# Restart policy
+Restart=on-failure
+RestartSec=5m
+
+[Install]
+WantedBy=multi-user.target
